@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP FRQ Grader</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f1efe9;
+    --border: rgba(0,0,0,0.10);
+    --border-md: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text-muted: #6b6a64;
+    --text-hint: #9b9a94;
+    --accent: #3c34b8;
+    --accent-light: #eeedfe;
+    --accent-mid: #534ab7;
+    --success: #0f6e56;
+    --success-bg: #e1f5ee;
+    --warn: #854f0b;
+    --warn-bg: #faeeda;
+    --danger: #a32d2d;
+    --danger-bg: #fcebeb;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --surface: #242421;
+      --surface2: #2c2c2a;
+      --border: rgba(255,255,255,0.10);
+      --border-md: rgba(255,255,255,0.18);
+      --text: #f1efe8;
+      --text-muted: #b4b2a9;
+      --text-hint: #888780;
+      --accent: #afa9ec;
+      --accent-light: #26215c;
+      --accent-mid: #7f77dd;
+      --success: #9fe1cb;
+      --success-bg: #04342c;
+      --warn: #fac775;
+      --warn-bg: #412402;
+      --danger: #f7c1c1;
+      --danger-bg: #501313;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 2rem;
+  }
+
+  .logo {
+    width: 44px;
+    height: 44px;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo i {
+    font-size: 22px;
+    color: var(--accent-mid);
+  }
+
+  .header-text h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .header-text p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-hint);
+    margin-bottom: 10px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  select, input[type="text"] {
+    background: var(--surface2);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 14px;
+    color: var(--text);
+    width: 100%;
+    font-family: inherit;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23888780' stroke-width='2' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+
+  select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-mid);
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 200px;
+    transition: border-color 0.15s;
+  }
+
+  .char-count {
+    font-size: 12px;
+    color: var(--text-hint);
+    text-align: right;
+    margin-top: 5px;
+  }
+
+  .hint-text {
+    font-size: 12px;
+    color: var(--text-hint);
+    margin-top: 4px;
+  }
+
+  .submit-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1rem;
+  }
+
+  .btn-grade {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.15s;
+    font-family: inherit;
+  }
+
+  .btn-grade:hover { opacity: 0.88; }
+  .btn-grade:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .btn-clear {
+    background: transparent;
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+
+  .btn-clear:hover { background: var(--surface2); }
+
+  /* Results */
+  #results { display: none; }
+
+  .result-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .frq-type-badge {
+    background: var(--accent-light);
+    color: var(--accent-mid);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .score-chip {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+
+  .score-chip .cat {
+    font-size: 11px;
+    color: var(--text-hint);
+    margin-bottom: 4px;
+  }
+
+  .score-chip .pts {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .score-chip .pts span {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .score-chip.full { border-color: var(--success); }
+  .score-chip.full .pts { color: var(--success); }
+  .score-chip.partial { border-color: var(--warn); }
+  .score-chip.partial .pts { color: var(--warn); }
+  .score-chip.zero { border-color: var(--danger); }
+  .score-chip.zero .pts { color: var(--danger); }
+
+  .total-score {
+    background: var(--accent-light);
+    border: 0.5px solid var(--accent-mid);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .total-score .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-mid);
+  }
+
+  .total-score .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .prose-section {
+    margin-bottom: 1rem;
+  }
+
+  .prose-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .prose-section h3 i {
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  .prose-section .body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 1rem 0;
+  }
+
+  .revision-box {
+    background: var(--success-bg);
+    border: 0.5px solid var(--success);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+
+  .revision-box .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--success);
+    margin-bottom: 8px;
+  }
+
+  .revision-box .body {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  /* Loading */
+  .loading-card {
+    display: none;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 2.5px solid var(--border-md);
+    border-top-color: var(--accent-mid);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-status {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .error-box {
+    background: var(--danger-bg);
+    border: 0.5px solid var(--danger);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--danger);
+    display: none;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 500px) {
+    .field-row { grid-template-columns: 1fr; }
+    body { padding: 1rem 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="logo" aria-hidden="true">
+      <i class="ti ti-school"></i>
+    </div>
+    <div class="header-text">
+      <h1>AP FRQ Grader</h1>
+      <p>Rubric-aligned scoring and actionable feedback</p>
+    </div>
+  </header>
+
+  <!-- Input form -->
+  <div class="card" id="input-card">
+    <div class="section-label">Question context</div>
+    <div class="field-row">
+      <div class="field">
+        <label for="subject">AP Subject</label>
+        <select id="subject">
+          <option value="">Select subject…</option>
+          <option>AP Language and Composition</option>
+          <option>AP Literature and Composition</option>
+          <option>AP United States History</option>
+          <option>AP World History</option>
+          <option>AP European History</option>
+          <option>AP US Government and Politics</option>
+          <option>AP Comparative Government</option>
+          <option>AP Psychology</option>
+          <option>AP Biology</option>
+          <option>AP Chemistry</option>
+          <option>AP Physics 1</option>
+          <option>AP Physics 2</option>
+          <option>AP Physics C</option>
+          <option>AP Environmental Science</option>
+          <option>AP Macroeconomics</option>
+          <option>AP Microeconomics</option>
+          <option>AP Statistics</option>
+          <option>AP Calculus AB</option>
+          <option>AP Calculus BC</option>
+          <option>Other AP Subject</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="frqtype">FRQ Type</label>
+        <select id="frqtype">
+          <option value="">Select type…</option>
+          <option>DBQ (Document-Based Question)</option>
+          <option>LEQ (Long Essay Question)</option>
+          <option>SAQ (Short Answer Question)</option>
+          <option>Rhetorical Analysis Essay</option>
+          <option>Argument Essay</option>
+          <option>Synthesis Essay</option>
+          <option>Free Response (Science)</option>
+          <option>Concept Application</option>
+          <option>SCOTUS Comparison</option>
+          <option>Argument Essay (Gov)</option>
+          <option>Other FRQ</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom: 12px;">
+      <label for="prompt-desc">FRQ Prompt / Topic (optional but helpful)</label>
+      <input type="text" id="prompt-desc" placeholder="e.g. Analyze the rhetorical strategies in the 1963 March on Washington speech…">
+      <div class="hint-text">Summarize the prompt — do not paste copyrighted text.</div>
+    </div>
+
+    <div class="section-label" style="margin-top: 1.25rem;">Student response</div>
+    <div class="field">
+      <textarea id="student-response" placeholder="Paste the student's FRQ response here…" oninput="updateCount()"></textarea>
+      <div class="char-count"><span id="char-count">0</span> characters</div>
+    </div>
+
+    <div class="submit-row">
+      <button class="btn-grade" id="grade-btn" onclick="gradeResponse()">
+        <i class="ti ti-checks" aria-hidden="true"></i>
+        Grade this response
+      </button>
+      <button class="btn-clear" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="card loading-card" id="loading-card">
+    <div class="spinner"></div>
+    <div class="loading-status" id="loading-status">Analyzing response against AP rubric…</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="card">
+      <div class="result-header">
+        <div>
+          <div class="section-label">Identified FRQ type</div>
+          <div id="frq-identified" style="font-size:15px; font-weight:500;"></div>
+        </div>
+        <div class="frq-type-badge" id="subject-badge"></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="section-label">Rubric scores</div>
+      <div class="score-grid" id="score-grid"></div>
+      <div class="total-score" id="total-score-row">
+        <div class="label">Total Score</div>
+        <div class="value" id="total-value"></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="prose-section">
+        <h3><i class="ti ti-file-description" aria-hidden="true"></i> Score justification</h3>
+        <div class="body" id="justification"></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="prose-section">
+        <h3><i class="ti ti-thumb-up" aria-hidden="true"></i> Strengths</h3>
+        <div class="body" id="strengths"></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="prose-section">
+        <h3><i class="ti ti-target" aria-hidden="true"></i> Areas for improvement</h3>
+        <div class="body" id="improvements"></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="prose-section">
+        <h3><i class="ti ti-edit" aria-hidden="true"></i> Improved sample revision</h3>
+        <div class="revision-box">
+          <div class="label">Model revision of weak sections</div>
+          <div class="body" id="revision"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem; text-align:center;">
+        <button class="btn-clear" onclick="gradeAnother()" style="font-size:13px;">
+          <i class="ti ti-refresh" aria-hidden="true" style="vertical-align:-2px; margin-right:5px;"></i>
+          Grade another response
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function updateCount() {
+  const v = document.getElementById('student-response').value;
+  document.getElementById('char-count').textContent = v.length.toLocaleString();
+}
+
+function clearAll() {
+  document.getElementById('subject').value = '';
+  document.getElementById('frqtype').value = '';
+  document.getElementById('prompt-desc').value = '';
+  document.getElementById('student-response').value = '';
+  document.getElementById('char-count').textContent = '0';
+  document.getElementById('error-box').style.display = 'none';
+}
+
+function gradeAnother() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('input-card').style.display = 'block';
+  document.getElementById('student-response').value = '';
+  document.getElementById('char-count').textContent = '0';
+}
+
+const LOADING_MSGS = [
+  'Analyzing response against AP rubric…',
+  'Evaluating thesis and evidence…',
+  'Checking reasoning and sophistication…',
+  'Drafting feedback and sample revision…',
+];
+
+async function gradeResponse() {
+  const subject = document.getElementById('subject').value;
+  const frqtype = document.getElementById('frqtype').value;
+  const prompt = document.getElementById('prompt-desc').value.trim();
+  const response = document.getElementById('student-response').value.trim();
+
+  if (!response) {
+    showError('Please paste a student response before grading.');
+    return;
+  }
+
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('input-card').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+
+  const loadingCard = document.getElementById('loading-card');
+  loadingCard.style.display = 'block';
+
+  let msgIdx = 0;
+  const statusEl = document.getElementById('loading-status');
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % LOADING_MSGS.length;
+    statusEl.textContent = LOADING_MSGS[msgIdx];
+  }, 2000);
+
+  const systemPrompt = `You are an expert AP Reader trained in College Board scoring standards. You evaluate AP Free Response Questions with precision, consistency, and clear justification.
+
+When given a student FRQ response, respond ONLY with a valid JSON object (no markdown, no preamble) with this exact structure:
+
+{
+  "frqIdentified": "string - the AP subject and FRQ type you are grading",
+  "subjectShort": "string - short label like 'AP Lang' or 'APUSH'",
+  "scores": [
+    { "category": "Thesis", "earned": 1, "possible": 1 },
+    { "category": "Evidence", "earned": 2, "possible": 4 }
+  ],
+  "justification": "string - paragraph explaining each score using rubric-specific criteria",
+  "strengths": "string - bullet-point list of what the student did well (use • as bullets)",
+  "improvements": "string - specific actionable steps tied to the AP rubric (use • as bullets)",
+  "revision": "string - a rewritten version of only the weakest section(s) to model improvement, without completing the full FRQ"
+}
+
+Rules:
+- Apply the official AP rubric categories for the identified subject and FRQ type.
+- Do NOT inflate scores. Be consistent with real AP Reading standards.
+- All feedback must be rubric-aligned, not generic.
+- Do NOT write a full FRQ response for the student in the revision field — only weak sections.
+- The revision field should demonstrate stronger writing/evidence/reasoning for the weakest part.
+- Return ONLY the JSON object. No text before or after it.`;
+
+  const userMessage = `AP Subject: ${subject || 'Not specified'}
+FRQ Type: ${frqtype || 'Not specified'}
+${prompt ? 'Prompt/Topic: ' + prompt : ''}
+
+Student Response:
+${response}`;
+
+  try {
+    const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+
+    clearInterval(msgInterval);
+    const data = await apiRes.json();
+    const rawText = (data.content || []).map(b => b.text || '').join('');
+    const clean = rawText.replace(/```json|```/g, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(clean); } catch(e) { throw new Error('Could not parse grading response. Please try again.'); }
+
+    loadingCard.style.display = 'none';
+    renderResults(parsed);
+
+  } catch(err) {
+    clearInterval(msgInterval);
+    loadingCard.style.display = 'none';
+    document.getElementById('input-card').style.display = 'block';
+    showError(err.message || 'Something went wrong. Please try again.');
+  }
+}
+
+function renderResults(data) {
+  document.getElementById('frq-identified').textContent = data.frqIdentified || 'AP FRQ';
+  document.getElementById('subject-badge').textContent = data.subjectShort || 'AP';
+
+  const grid = document.getElementById('score-grid');
+  grid.innerHTML = '';
+  let totalEarned = 0, totalPossible = 0;
+
+  (data.scores || []).forEach(s => {
+    totalEarned += s.earned;
+    totalPossible += s.possible;
+    const pct = s.possible > 0 ? s.earned / s.possible : 0;
+    const cls = pct === 1 ? 'full' : pct === 0 ? 'zero' : 'partial';
+    const chip = document.createElement('div');
+    chip.className = 'score-chip ' + cls;
+    chip.innerHTML = `<div class="cat">${esc(s.category)}</div><div class="pts">${s.earned}<span>/${s.possible}</span></div>`;
+    grid.appendChild(chip);
+  });
+
+  document.getElementById('total-value').textContent = totalEarned + ' / ' + totalPossible;
+
+  document.getElementById('justification').textContent = data.justification || '';
+  document.getElementById('strengths').textContent = data.strengths || '';
+  document.getElementById('improvements').textContent = data.improvements || '';
+  document.getElementById('revision').textContent = data.revision || '';
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.textContent = msg;
+  box.style.display = 'block';
+}
+</script>
+</body>
+</html>
