@@ -424,6 +424,9 @@
     </div>
   </header>
 
+  <!-- Proxy config (hidden) -->
+  <input type="hidden" id="proxy-url" value="https://your-worker.your-account.workers.dev">
+
   <!-- Input form -->
   <div class="card" id="input-card">
     <div class="section-label">Question context</div>
@@ -650,8 +653,11 @@ ${prompt ? 'Prompt/Topic: ' + prompt : ''}
 Student Response:
 ${response}`;
 
+  const proxyUrl = (document.getElementById('proxy-url').value || '').trim();
+  const endpoint = proxyUrl || 'https://api.anthropic.com/v1/messages';
+
   try {
-    const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+    const apiRes = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
